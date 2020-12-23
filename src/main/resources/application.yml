@@ -1,0 +1,22 @@
+server:
+  port: 8555
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/xiaoyi?serverTimezone=GMT%2B8&useUnicode=true&useSSL=false&characterEncoding=utf8
+    username: root
+    password: root
+  jackson.date-format: yyyy-MM-dd HH:mm:ss
+  time-zone: GMT+8
+
+#  redis:
+#    host: 172.117.49.126
+
+mybatis-plus:
+  configuration.log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:com/secondhand/xiaoyi/mapper/xml/*.xml
+  typeAliasesPackage: com.secondhand.xiaoyi.entity
+
+
+
