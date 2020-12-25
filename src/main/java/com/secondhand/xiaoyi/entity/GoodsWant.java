@@ -2,6 +2,8 @@ package com.secondhand.xiaoyi.entity;
 
 import java.math.BigDecimal;
 
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import java.util.Date;
@@ -27,7 +29,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @ApiModel(value="GoodsWant对象", description="")
-public class GoodsWant implements Serializable {
+public class GoodsWant implements Serializable ,Comparable<GoodsWant>{
 
     private static final long serialVersionUID = 1L;
 
@@ -83,4 +85,17 @@ public class GoodsWant implements Serializable {
     private Date gmtModified;
 
 
+
+    @Override
+    public int compareTo(GoodsWant o) {
+        int i1 = handler(o);
+        int i2 = handler(this);
+        return i2-i1;
+    }
+    public static int  handler(GoodsWant o){
+        int betweenDay = (int) DateUtil.between(o.getGmtCreate(), new Date(), DateUnit.DAY);
+        int i = o.getBrowsedCount() + o.getCollectedCount() * 2;
+        float s=(i==0?0:(i - 0.5f * 0.5f * betweenDay * betweenDay)/i);
+        return (int)(i*s);
+    }
 }

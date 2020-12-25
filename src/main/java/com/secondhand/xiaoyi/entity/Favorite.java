@@ -25,7 +25,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @ApiModel(value="Favorite对象", description="")
-public class Favorite implements Serializable {
+public class Favorite implements Serializable,Comparable<Favorite> {
 
     private static final long serialVersionUID = 1L;
 
@@ -47,4 +47,17 @@ public class Favorite implements Serializable {
     @ApiModelProperty(value = "修改时间")
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
+
+
+    @Override
+    public int compareTo(Favorite o) {
+        Date date1=this.getGmtCreate();
+        Date date2=o.getGmtCreate();
+        if (date1.after(date2)) {
+            return -1;
+        }else if (date1.before(date2)){
+            return 1;
+        }
+        return 0;
+    }
 }

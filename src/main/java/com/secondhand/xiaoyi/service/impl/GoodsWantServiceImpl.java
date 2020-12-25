@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.secondhand.xiaoyi.utils.ImgHandlerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.*;
@@ -46,7 +45,6 @@ public class GoodsWantServiceImpl extends ServiceImpl<GoodsWantMapper, GoodsWant
         map.put("goods_want",goodsWant);
         map.put("is_deleted",0);
         QueryWrapper<GoodsWant> queryWrapper = new QueryWrapper<>();
-        //当有value为null时忽略该<k,v>
         queryWrapper.allEq(map,false);
         if (!StringUtils.isEmpty(queryKeyword)) {
             queryWrapper.and(i -> i.like("goods_want_name",queryKeyword)
@@ -55,7 +53,8 @@ public class GoodsWantServiceImpl extends ServiceImpl<GoodsWantMapper, GoodsWant
         }
         List<GoodsWant> goodsWants = goodsWantMapper.selectList(queryWrapper);
         //降序排列goodsWants
-        Collections.sort(goodsWants,new Comparator<Object>(){
+        Collections.sort(goodsWants
+               /* ,new Comparator<Object>(){
             @Override
             public int compare(Object o1, Object o2) {
                 int i1 = handler(o1);
@@ -68,7 +67,8 @@ public class GoodsWantServiceImpl extends ServiceImpl<GoodsWantMapper, GoodsWant
                 float s=(i==0?0:(i - 0.5f * 0.5f * betweenDay * betweenDay)/i);
                 return (int)(i*s);
             }
-        });
+        }*/
+                );
         return goodsWants;
     }
 

@@ -3,6 +3,7 @@ package com.secondhand.xiaoyi.controller;
 
 import com.secondhand.xiaoyi.entity.GoodsWant;
 import com.secondhand.xiaoyi.entity.Shoppingcart;
+import com.secondhand.xiaoyi.entity.VO.GoodsWantAndNeedCountVO;
 import com.secondhand.xiaoyi.service.ShoppingcartService;
 import com.secondhand.xiaoyi.utils.ImgHandlerUtil;
 import com.secondhand.xiaoyi.utils.resultabout.Result;
@@ -48,12 +49,12 @@ public class ShoppingcartController {
     @ApiOperation("查看购物车：根据用户userId查看购物车记录goodsWants")
     @GetMapping("showCartInfo/{userId}")
     public Result getByUserId (@PathVariable Long userId){
-        List<GoodsWant> goodsWants = shoppingcartService.getByUserId(userId);
-        for (GoodsWant goodsWant : goodsWants) {
-            //读出图片
-            goodsWant.setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodsWant.getGoodsWantImage()));
+        List<GoodsWantAndNeedCountVO> goodsWantAndNeedCountVOs = shoppingcartService.getByUserId(userId);
+
+        for (GoodsWantAndNeedCountVO goodsWantAndNeedCountVO : goodsWantAndNeedCountVOs) {
+            goodsWantAndNeedCountVO.getGoodsWant().setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodsWantAndNeedCountVO.getGoodsWant().getGoodsWantImage()));
         }
-        return Result.success().data("items",goodsWants);
+        return Result.success().data("items",goodsWantAndNeedCountVOs);
     }
 
     @ApiOperation("移除购物车记录：输入shopId")
@@ -65,5 +66,11 @@ public class ShoppingcartController {
         }
         return Result.success().message("移除成功");
     }
+
+
+
+
+
+
 }
 

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.secondhand.xiaoyi.entity.GoodsWant;
 import com.secondhand.xiaoyi.entity.Shoppingcart;
+import com.secondhand.xiaoyi.entity.VO.GoodsWantAndNeedCountVO;
 import com.secondhand.xiaoyi.mapper.ShoppingcartMapper;
 import com.secondhand.xiaoyi.service.GoodsWantService;
 import com.secondhand.xiaoyi.service.ShoppingcartService;
@@ -67,29 +68,16 @@ public class ShoppingcartServiceImpl extends ServiceImpl<ShoppingcartMapper, Sho
     }
 
     @Override
-    public List<GoodsWant> getByUserId(Long userId) {
+    public List<GoodsWantAndNeedCountVO> getByUserId(Long userId) {
         QueryWrapper<Shoppingcart> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id",userId);
         List<Shoppingcart> shoppingcarts = shoppingcartMapper.selectList(queryWrapper);
-        ArrayList<GoodsWant> goodsWants = new ArrayList();
+        Collections.sort(shoppingcarts);
+        ArrayList<GoodsWantAndNeedCountVO> goodsWantAndNeedCountVOs = new ArrayList();
         for (Shoppingcart shoppingcart : shoppingcarts) {
-            goodsWants.add(goodsWantService.getById(shoppingcart.getGoodsWantId()));
-    }
-        //热度按排列goodsWants
-        Collections.sort(goodsWants,new Comparator<Object>(){
-            @Override
-            public int compare(Object o1, Object o2) {
-                int i1 = handler(o1);
-                int i2 = handler(o2);
-                return i2-i1;
-            }
-            public int handler(Object o){
-                int betweenDay = (int) DateUtil.between(((GoodsWant) o).getGmtCreate(), new Date(), DateUnit.DAY);
-                int i = ((GoodsWant) o).getBrowsedCount() + ((GoodsWant) o).getCollectedCount() * 2;
-                float s=(i==0?0:(i - 0.5f * 0.5f * betweenDay * betweenDay)/i);
-                return (int)(i*s);
-            }
-        });
-        return goodsWants;
+            GoodsWantAndNeedCountVO goodsWantAndNeedCountVO = new GoodsWantAndNeedCountVO(shoppingcart.getShopId(),shoppingcart.getNeedCount(), goodsWantService.getById(shoppingcart.getGoodsWantId()));
+            goodsWantAndNeedCountVOs.add(goodsWantAndNeedCountVO);
+        }
+        return goodsWantAndNeedCountVOs;
     }
 }

@@ -7,6 +7,8 @@ import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
+
+import com.secondhand.xiaoyi.entity.VO.GoodsWantAndNeedCountVO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -25,7 +27,7 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @ApiModel(value="Shoppingcart对象", description="")
-public class Shoppingcart implements Serializable {
+public class Shoppingcart implements Serializable,Comparable<Shoppingcart> {
 
     private static final long serialVersionUID = 1L;
 
@@ -51,4 +53,15 @@ public class Shoppingcart implements Serializable {
     private Date gmtModified;
 
 
+    @Override
+    public int compareTo(Shoppingcart o) {
+        Date date1=this.getGmtCreate();
+        Date date2=o.getGmtCreate();
+        if (date1.after(date2)) {
+            return -1;
+        }else if (date1.before(date2)){
+            return 1;
+        }
+        return 0;
+    }
 }

@@ -63,25 +63,11 @@ public class FavoriteServiceImpl extends ServiceImpl<FavoriteMapper, Favorite> i
         QueryWrapper<Favorite> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_id",userId);
         List<Favorite> favorites = favoriteMapper.selectList(queryWrapper);
+        Collections.sort(favorites);
         ArrayList<GoodsWant> goodsWants = new ArrayList();
         for (Favorite favorite : favorites) {
             goodsWants.add(goodsWantService.getById(favorite.getGoodsWantId()));
         }
-        //热度按排列goodsWants
-        Collections.sort(goodsWants,new Comparator<Object>(){
-            @Override
-            public int compare(Object o1, Object o2) {
-                int i1 = handler(o1);
-                int i2 = handler(o2);
-                return i2-i1;
-            }
-            public int handler(Object o){
-                int betweenDay = (int) DateUtil.between(((GoodsWant) o).getGmtCreate(), new Date(), DateUnit.DAY);
-                int i = ((GoodsWant) o).getBrowsedCount() + ((GoodsWant) o).getCollectedCount() * 2;
-                float s=(i==0?0:(i - 0.5f * 0.5f * betweenDay * betweenDay)/i);
-                return (int)(i*s);
-            }
-        });
         return goodsWants;
     }
 }

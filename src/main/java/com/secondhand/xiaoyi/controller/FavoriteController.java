@@ -39,7 +39,7 @@ public class FavoriteController {
             return Result.success().message("移除成功");
         }
         if (!favoriteService.save(favorite)) {
-            return Result.failure().message("更新购物车数据失败");
+            return Result.failure().message("更新收藏夹数据失败");
         }
         return Result.success().message("操作成功");
     }

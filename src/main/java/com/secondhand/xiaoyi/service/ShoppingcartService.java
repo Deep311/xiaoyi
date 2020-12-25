@@ -3,6 +3,7 @@ package com.secondhand.xiaoyi.service;
 import com.secondhand.xiaoyi.entity.GoodsWant;
 import com.secondhand.xiaoyi.entity.Shoppingcart;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.secondhand.xiaoyi.entity.VO.GoodsWantAndNeedCountVO;
 
 import java.util.List;
 
@@ -43,5 +44,8 @@ public interface ShoppingcartService extends IService<Shoppingcart> {
      * @param userId
      * @return java.util.List<com.secondhand.xiaoyi.entity.Shoppingcart>
      **/
-    List<GoodsWant> getByUserId(Long userId);
+    List<GoodsWantAndNeedCountVO> getByUserId(Long userId);
+
+
+
 }
