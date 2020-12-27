@@ -1,5 +1,6 @@
 package com.secondhand.xiaoyi.controller;
 import com.alibaba.fastjson.JSONObject;
+import com.secondhand.xiaoyi.entity.BO.BuyBO;
 import com.secondhand.xiaoyi.entity.GoodsWant;
 import com.secondhand.xiaoyi.entity.User;
 import com.secondhand.xiaoyi.service.ActionService;
@@ -97,20 +98,20 @@ public class UserController {
 
     @ApiOperation(value = "购买模块：传入买方userId、商品帖goodsWantId、购买商品数needCount，支付密码paymentPassword更新双方钱包余额以及商品信息,以及我的行为表")
     @PutMapping("buy")
-    public Result buy (@RequestParam String conditionStr){
-        //解析Json串
-        JSONObject conditionJson = JSONObject.parseObject(conditionStr);
-        Long userId=conditionJson.getLong("userId");
-        Long goodsWantId=conditionJson.getLong("goodsWantId");
-        int needCount=conditionJson.getIntValue("needCount");
-        String paymentPassword =conditionJson.getString("paymentPassword");
+    public Result buy (@RequestBody BuyBO buyBO){
+
+        Long userId=buyBO.getUserId();
+        Long goodsWantId=buyBO.getGoodsWantId();
+        int needCount=buyBO.getNeedCount();
+        String paymentPassword =buyBO.getPaymentPassword();
+        System.out.println(paymentPassword);
 
         //判断用户输入支付密码是否正确
         User userInfo = userService.getUserInfoById(userId);
         if (userInfo==null){
             return Result.failure().message("查询失败");
         }
-        if (userInfo.getPaymentPassword()!=paymentPassword) {
+        if (!userInfo.getPaymentPassword().equals(paymentPassword)) {
             return Result.failure().message("密码错误");
         }
 

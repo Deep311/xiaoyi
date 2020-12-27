@@ -37,5 +37,20 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         queryWrapper.eq("goods_want_id", goodsWantId).orderByAsc("message_floor");
         return messageMapper.selectList(queryWrapper);
     }
+
+    /**
+     * @param userId
+     * @return java.util.List<com.secondhand.xiaoyi.entity.Message>
+     * @author Gaosl
+     * @description //展示用户的所有留言
+     * @date 15:49 2020/12/27
+     **/
+    @Override
+    public List<Message> showMessageByuserId(Long userId) {
+        QueryWrapper<Message> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id",userId);
+        List<Message> messageList = messageMapper.selectList(queryWrapper);
+        return messageList;
+    }
 }
 

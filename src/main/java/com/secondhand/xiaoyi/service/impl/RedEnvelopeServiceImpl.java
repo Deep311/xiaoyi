@@ -3,11 +3,14 @@ package com.secondhand.xiaoyi.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.secondhand.xiaoyi.service.RedEnvelopeService;
 import com.secondhand.xiaoyi.utils.RedisUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import redis.clients.jedis.Jedis;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -23,14 +26,10 @@ import java.util.*;
 @Service
 public class RedEnvelopeServiceImpl implements RedEnvelopeService {
 
-    @Resource
-    RedisUtil redisUtil;
-
-    @Resource
-    RedisTemplate redisTemplate;
-
-    @Resource
-    StringRedisTemplate stringRedisTemplate;
+    /**
+     * @description //红包总金额
+     **/
+    public static Integer TOTAL_AMOUNT_OF_RED_ENVELOP=null;
     /**
      * @description //小红包数量
      **/
@@ -39,45 +38,17 @@ public class RedEnvelopeServiceImpl implements RedEnvelopeService {
     /**
      * @description //未消费红包队列
      **/
-    public static String UNCONSUMED_RED_ENVELOP_QUEUE="unconsumedRedEnvelopeQueue";
+    public static Queue<HashMap<String,Object>> UNCONSUMED_RED_ENVELOP_QUEUE= new LinkedList<>();
 
     /**
      * @description //已消费红包队列
      **/
-    public static String CONSUMPTION_RED_ENVELOP_QUEUE="consumptionRedEnvelopeQueue";
+    public static Queue<HashMap<String,Object>> CONSUMPTION_RED_ENVELOP_QUEUE= new LinkedList<>();
 
     /**
      * @description //用户ID过滤map
      **/
-    public static String USERID_FILTER_MAP="userIdFilterMap";
-
-
-    /**
-     * @author Gaosl
-     * @description   //	-- 函数：尝试获得红包，如果成功，则返回json字符串，如果不成功，则返回空
-     *                //	-- 参数：未消费红包队列名， 已消费的队列名，去重的Map名，用户ID
-     *                //	-- 返回值：nil 或者 json字符串，包含用户ID：userId，红包ID：id，红包金额：money
-     * @date 0:47 2020/12/27
-     * @param
-     * @return
-     **/
-    public static String GET_RED_ENVELOP_SCRIPT =
-            "if redis.call('hexists', KEYS[3], ARGV[1]) ~= 0 then\n"
-                    + "return nil\n"
-                    + "else\n"
-                    + "local redEnvelope = redis.call('rpop', KEYS[1]);\n"
-                    + "if redEnvelope then\n"
-                    + "local x = cjson.decode(redEnvelope);\n"
-                    + "x['userId'] = ARGV[1];\n"
-                    + "local re = cjson.encode(x);\n"
-                    + "redis.call('hset', KEYS[3], ARGV[1], ARGV[1]);\n"
-                    + "redis.call('lpush', KEYS[2], re);\n"
-                    + "return re;\n"
-                    + "end\n"
-                    + "end\n"
-                    + "return nil";
-
-
+    public static Set<Long> USERID_FILTER_SET=new HashSet<Long>();
     /**
      * @author Gaosl
      * @description //经过一个时间周期生成一个红包金额
@@ -87,12 +58,13 @@ public class RedEnvelopeServiceImpl implements RedEnvelopeService {
      **/
     @Override
     @Scheduled(cron = "0 * * * * ?")
-    public Integer createRedEnvelope() {
+    public void createRedEnvelope() {
         // 生成50-150内的随机数
-        Integer amount = new Random().nextInt(150 - 50 + 1) + 50;
-        System.out.println(amount);
-        System.out.println("hello..........."+new Date());
-        return amount;
+        TOTAL_AMOUNT_OF_RED_ENVELOP = new Random().nextInt(150 - 50 + 1) + 50;
+        UNCONSUMED_RED_ENVELOP_QUEUE= new LinkedList<>();
+        CONSUMPTION_RED_ENVELOP_QUEUE=new LinkedList<>();
+        USERID_FILTER_SET=new HashSet<Long>();
+        divideRedEnvelope();
     }
 
     /**
@@ -101,13 +73,10 @@ public class RedEnvelopeServiceImpl implements RedEnvelopeService {
      * @description //线段分割法生成小红包，红包金额
      * @date 15:36 2020/12/26
      **/
-    @Override
-    public void divideRedEnvelope() {
-        /*new RedEnvelopeServiceImpl().createRedEnvelope()*/
-        Integer totalAmount=123;
-        List<Double> list=new ArrayList<Double>();
+    public static void divideRedEnvelope() {
+        List<Double> list=new ArrayList();
         while (list.size()<SMALL_RED_ENVELOP_NUM-1) {
-            double v = Math.random() * ((double)totalAmount - 0.01) + 0.01;
+            double v = Math.random() * ((double)TOTAL_AMOUNT_OF_RED_ENVELOP - 0.01) + 0.01;
             if(list.indexOf(v)<0){
                 list.add(v);
             }
@@ -118,40 +87,46 @@ public class RedEnvelopeServiceImpl implements RedEnvelopeService {
         for (Double aDouble : list) {
             Double temp=aDouble-left;
             temp = (double)Math.round(temp*100)/100;
-            JSONObject object = new JSONObject();
-            object.put("userId",0);
-            object.put("money",temp);
-            redisUtil.lLeftPush(UNCONSUMED_RED_ENVELOP_QUEUE,object.toJSONString());
+            HashMap<String, Object> map = new HashMap<>(2);
+            map.put("userId",0);
+            map.put("money",temp);
+            UNCONSUMED_RED_ENVELOP_QUEUE.add(map);
             left=aDouble;
             leftAmount+=temp;
         }
-        Double temp=(double) totalAmount-leftAmount;
-        temp = (double)Math.round(temp*100)/100;
-        JSONObject object = new JSONObject();
-        object.put("userId",0);
-        object.put("money",temp);
-        redisUtil.lLeftPush(UNCONSUMED_RED_ENVELOP_QUEUE,object.toJSONString());
+        Double temp1=(double) TOTAL_AMOUNT_OF_RED_ENVELOP-leftAmount;
+        temp1 = (double)Math.round(temp1*100)/100;
+        HashMap<String, Object> map = new HashMap<>(2);
+        map.put("userId",0);
+        map.put("money",temp1);
+        UNCONSUMED_RED_ENVELOP_QUEUE.add(map);
     }
 
     /**
      * @author Gaosl
-     * @description //执行Lua脚本文件，事务性操作抢红包
+     * @description //事务性操作抢红包
      * @date 1:15 2020/12/27
      * @param userId
      * @return java.lang.String
      **/
     @Override
-    public String getRedEnvelope(Long userId) {
-        DefaultRedisScript<String> redisScript = new DefaultRedisScript<>();
-        redisScript.setResultType(String.class);
-        redisScript.setScriptText(GET_RED_ENVELOP_SCRIPT);
-        List<String> keyList = new ArrayList<>();
-        keyList.add(UNCONSUMED_RED_ENVELOP_QUEUE);
-        keyList.add(CONSUMPTION_RED_ENVELOP_QUEUE);
-        keyList.add(USERID_FILTER_MAP);
-        String arg1=userId.toString();
-        return stringRedisTemplate.execute(redisScript,keyList,arg1);
+    public HashMap<String, Object> getRedEnvelope(Long userId) {
+        if (USERID_FILTER_SET.contains(userId)) {
+            HashMap<String, Object> map = new HashMap<>(1);
+            //表示已抢过红包
+            map.put("money",null);
+            return map;
+        }
+        HashMap<String, Object> redEnvelope = UNCONSUMED_RED_ENVELOP_QUEUE.poll();
+        if (!redEnvelope.isEmpty()) {
+            redEnvelope.put("userId",userId);
+            USERID_FILTER_SET.add(userId);
+            CONSUMPTION_RED_ENVELOP_QUEUE.add(redEnvelope);
+        }
+        return redEnvelope;
     }
+
+
 }
 
 

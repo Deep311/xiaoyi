@@ -128,13 +128,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void updateBuyerAndSellerWalletBalance(Long buyerId, Long sellerId, BigDecimal totalAmount) {
         UpdateWrapper<User> buyerUpdateWrapper = new UpdateWrapper<>();
         buyerUpdateWrapper.setSql("wallet_balance=wallet_balance-"+totalAmount).eq("user_id",buyerId);
-        boolean buyerFlag = userMapper.update(new User(), buyerUpdateWrapper) != 1;
+        userMapper.update(new User(), buyerUpdateWrapper);
         UpdateWrapper<User> sellerUpdateWrapper = new UpdateWrapper<>();
         sellerUpdateWrapper.setSql("wallet_balance=wallet_balance+"+totalAmount).eq("user_id",sellerId);
-        boolean sellerFlag = userMapper.update(new User(), sellerUpdateWrapper) != 1;
-        if (!(buyerFlag&&sellerFlag)) {
-            throw new BaseException(20001,"更新买方、买方钱包失败");
-        }
+         userMapper.update(new User(), sellerUpdateWrapper) ;
+
     }
 
 

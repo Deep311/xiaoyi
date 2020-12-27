@@ -55,13 +55,12 @@ public class GoodsWantController {
         String goodsWant=conditionJson.getString("goodsWant");
         Long userId=conditionJson.getLong("userId");
         List<GoodsWant> goodsWants = goodsWantService.getGoodsWant(queryKeyword,sortId,goodsWant);
+
         ArrayList<GoodsWantAndFavoriteVO> goodsWantAndFavoriteVOs = new ArrayList<>();
         for (GoodsWant goodswant : goodsWants) {
             goodswant.setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodswant.getGoodsWantImage()));
-            GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(false, goodswant);
-            if (favoriteService.getFavoriteId(userId,goodswant.getGoodsWantId())!=null) {
-                goodsWantAndFavoriteVO.setIsFavorite(true);
-            }
+            GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(
+                    favoriteService.getFavoriteId(userId,goodswant.getGoodsWantId()), goodswant);
             goodsWantAndFavoriteVOs.add(goodsWantAndFavoriteVO);
         }
         return Result.success().data("items",goodsWantAndFavoriteVOs);
@@ -75,10 +74,8 @@ public class GoodsWantController {
             return Result.failure().message("查询失败");
         }
         goodsWantInfo.setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodsWantInfo.getGoodsWantImage()));
-        GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(false, goodsWantInfo);
-        if (favoriteService.getFavoriteId(userId,goodsWantInfo.getGoodsWantId())!=null) {
-            goodsWantAndFavoriteVO.setIsFavorite(true);
-        }
+        GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(
+                favoriteService.getFavoriteId(userId,goodsWantInfo.getGoodsWantId()), goodsWantInfo);
         List<Message> messageList = messageService.getMessages(goodsWantId);
         ArrayList<MessageVO> messageVOs = new ArrayList<>();
         for (Message message : messageList) {
@@ -105,7 +102,7 @@ public class GoodsWantController {
             String imgPartName="/goodsWantImg/xxx";
             String imgName=ImgHandlerUtil.imgHandlerWrite(base64ImgStr,imgPartName);
             goodsWant.setGoodsWantImage(imgName);
-             save = goodsWantService.save(goodsWant);
+            save = goodsWantService.save(goodsWant);
             goodsWantService.updateGoodsWantImage(goodsWant.getGoodsWantId(),imgName);
         }
         if (!save) {
@@ -115,7 +112,8 @@ public class GoodsWantController {
         if (actionService.saveAction(goodsWant.getUserId(),goodsWant.getGoodsWantId(),goodsWant.getGoodsWant())!=1) {
             return Result.failure().message("更新action表失败");
         }
-        return Result.success().message("发布成功");
+
+        return Result.success().data("goodsWantId",goodsWant.getGoodsWantId()).message("发布成功");
     }
 
     @ApiOperation("逻辑删除商品/求购帖：输入goodsWantId")

@@ -22,7 +22,17 @@ public interface MessageService extends IService<Message> {
      * @param goodsWantId
      * @return java.util.List<com.secondhand.xiaoyi.entity.Message>
      **/
-    public List<Message> getMessages(Long goodsWantId);
+     List<Message> getMessages(Long goodsWantId);
+
+     /**
+      * @author Gaosl
+      * @description //展示用户的所有留言
+      * @date 15:49 2020/12/27
+      * @param userId
+      * @return java.util.List<com.secondhand.xiaoyi.entity.Message>
+      **/
+    List<Message> showMessageByuserId(Long userId);
+
 
 
 }

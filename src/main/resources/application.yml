@@ -11,13 +11,8 @@ spring:
   time-zone: GMT+8
 
   redis:
-    host: 192.168.43.181
-    lettuce:
-      pool:
-        min-idle: 8
-        max-idle: 16
-        max-active: 16
-        max-wait: 10000
+    host: 172.117.49.126
+
 
 mybatis-plus:
   configuration.log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

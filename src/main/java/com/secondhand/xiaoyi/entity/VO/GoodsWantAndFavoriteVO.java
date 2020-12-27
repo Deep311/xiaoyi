@@ -19,7 +19,7 @@ public class GoodsWantAndFavoriteVO implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    private Boolean isFavorite;
+    private Long favoriteId;
 
     private GoodsWant goodsWant;
 

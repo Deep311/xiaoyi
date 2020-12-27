@@ -1,5 +1,7 @@
 package com.secondhand.xiaoyi.service;
 
+import java.util.HashMap;
+
 /**
  * @InterfaceName RedEnvelopeService
  * @Description 红包抽奖，即抢红包
@@ -12,20 +14,13 @@ public interface RedEnvelopeService {
     /**
      * @author Gaosl
      * @description //经过一个时间周期生成一个红包金额
-     * @date 0:45 2020/12/27
+     * @date 16:12 2020/12/27
      * @param
-     * @return java.lang.Integer
+     * @return void
      **/
-    Integer createRedEnvelope();
+    void createRedEnvelope();
 
-     /**
-      * @author Gaosl
-      * @description //线段分割法生成小红包，红包金额
-      * @date 15:36 2020/12/26
-      * @param
-      * @return void
-      **/
-     void divideRedEnvelope();
+
 
 
      /**
@@ -35,6 +30,6 @@ public interface RedEnvelopeService {
       * @param userId
       * @return java.lang.String
       **/
-     String getRedEnvelope(Long userId);
+     HashMap<String, Object> getRedEnvelope(Long userId);
 
 }

@@ -3,12 +3,14 @@ package com.secondhand.xiaoyi.controller;
 
 import com.secondhand.xiaoyi.entity.Favorite;
 import com.secondhand.xiaoyi.entity.GoodsWant;
+import com.secondhand.xiaoyi.entity.VO.GoodsWantAndFavoriteVO;
 import com.secondhand.xiaoyi.service.FavoriteService;
 import com.secondhand.xiaoyi.utils.ImgHandlerUtil;
 import com.secondhand.xiaoyi.utils.resultabout.Result;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,11 +50,15 @@ public class FavoriteController {
     @GetMapping("getFavoriteInfo/{userId}")
     public Result getAllByUserId (@PathVariable Long userId){
         List<GoodsWant> goodsWants = favoriteService.getByUserId(userId);
+        ArrayList<GoodsWantAndFavoriteVO> goodsWantAndFavoriteVOs = new ArrayList<>();
         for (GoodsWant goodsWant : goodsWants) {
             //读出图片
             goodsWant.setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodsWant.getGoodsWantImage()));
+            GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(
+                    favoriteService.getFavoriteId(userId,goodsWant.getGoodsWantId()), goodsWant);
+            goodsWantAndFavoriteVOs.add(goodsWantAndFavoriteVO);
         }
-        return Result.success().data("items",goodsWants);
+        return Result.success().data("items",goodsWantAndFavoriteVOs);
     }
 
     @ApiOperation("移除收藏夹记录：输入favoriteId")

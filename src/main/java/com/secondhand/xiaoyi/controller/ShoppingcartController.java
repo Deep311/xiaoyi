@@ -50,7 +50,9 @@ public class ShoppingcartController {
     @GetMapping("showCartInfo/{userId}")
     public Result getByUserId (@PathVariable Long userId){
         List<GoodsWantAndNeedCountVO> goodsWantAndNeedCountVOs = shoppingcartService.getByUserId(userId);
-
+        if (goodsWantAndNeedCountVOs.size()==0) {
+            return Result.success().data("items",null);
+        }
         for (GoodsWantAndNeedCountVO goodsWantAndNeedCountVO : goodsWantAndNeedCountVOs) {
             goodsWantAndNeedCountVO.getGoodsWant().setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodsWantAndNeedCountVO.getGoodsWant().getGoodsWantImage()));
         }
