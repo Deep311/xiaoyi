@@ -1,11 +1,18 @@
 package com.secondhand.xiaoyi;
+import com.alibaba.fastjson.JSONObject;
 import com.secondhand.xiaoyi.entity.User;
 import com.secondhand.xiaoyi.mapper.UserMapper;
+import com.secondhand.xiaoyi.service.RedEnvelopeService;
 import com.secondhand.xiaoyi.service.UserService;
+import com.secondhand.xiaoyi.service.impl.RedEnvelopeServiceImpl;
+import com.secondhand.xiaoyi.utils.RedisUtil;
 import com.secondhand.xiaoyi.utils.resultabout.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+
 import javax.annotation.Resource;
 
 @Slf4j
@@ -88,6 +95,58 @@ class XiaoyiApplicationTests {
 //        BufferedOutputStream out = FileUtil.getOutputStream("F:\\ideaproject\\xiaoyi\\src\\main\\resources\\static\\userImg\\2.txt");
 //        byte[] bytes = IoUtil.readBytes(in,true);
 //        IoUtil.write(out,true,bytes);
+    }
+
+
+    @Resource
+    RedEnvelopeService redEnvelopeService;
+    @Test
+    public void divideRedEnvelope() {
+       redisUtil.delete(RedEnvelopeServiceImpl.UNCONSUMED_RED_ENVELOP_QUEUE);
+        redEnvelopeService.divideRedEnvelope();
+
+        for (Long i = 1l; i < 21l; i++) {
+            System.out.println(i+"==========="+redEnvelopeService.getRedEnvelope(i));
+        }
+        System.out.println("************************************");
+
+        for (Long i = 1l; i < 21l; i++) {
+            System.out.println(i+"==========="+redEnvelopeService.getRedEnvelope(i));
+        }
+
+
+
+
+    }
+
+    @Resource
+    RedisUtil redisUtil;
+    @Resource
+    StringRedisTemplate stringRedisTemplate;
+    @Resource
+    RedisTemplate redisTemplate;
+    @Test
+    public void test01() {
+
+        JSONObject object = new JSONObject();
+        object.put("money",1);
+        redisUtil.lLeftPush("redEnvelopeList",object.toJSONString());
+
+        JSONObject object1 = new JSONObject();
+        object1.put("money",2);
+        redisUtil.lLeftPush("redEnvelopeList",object1.toJSONString());
+
+
+
+//        redisUtil.set("k1","v1");
+//        System.out.println(redisUtil.get("k1"));
+//
+//        stringRedisTemplate.opsForValue().set("k2","v2");
+//        System.out.println(stringRedisTemplate.opsForValue().get("k2"));
+//
+//        redisTemplate.opsForValue().set("k3","v3");
+//        System.out.println(redisTemplate.opsForValue().get("k3"));
+
     }
 
 }

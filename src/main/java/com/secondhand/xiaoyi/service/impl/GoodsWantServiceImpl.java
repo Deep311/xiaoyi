@@ -113,7 +113,7 @@ public class GoodsWantServiceImpl extends ServiceImpl<GoodsWantMapper, GoodsWant
     @Override
     public boolean logicDelete(Long goodsWantId) {
         UpdateWrapper<GoodsWant> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.setSql("is_delete=1").eq("goods_want_id",goodsWantId);
+        updateWrapper.setSql("is_deleted=1").eq("goods_want_id",goodsWantId);
         int update = goodsWantMapper.update(new GoodsWant(), updateWrapper);
         if (update!=1) {
             return false;

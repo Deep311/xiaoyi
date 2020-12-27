@@ -20,7 +20,6 @@ import java.math.BigDecimal;
  * @author Gaosl
  * @since 2020-12-05
  */
-//@Transactional
 @RestController
 @RequestMapping("/xiaoyi/user")
 public class UserController {
@@ -82,7 +81,21 @@ public class UserController {
         return Result.success();
     }
 
-    @ApiOperation(value = "购买模块：传入买方userId、商品帖goodsWantId、购买商品数needCount，更新双方钱包余额以及商品信息,以及我的行为表")
+    @ApiOperation(value = "购买模块：判断用户是否有支付密码")
+    @GetMapping("buy/{userId}")
+    public Result getPaymentPassword (@PathVariable Long userId){
+        User userInfo = userService.getUserInfoById(userId);
+        if (userInfo==null){
+            return Result.failure().message("查询失败");
+        }
+        if (StringUtils.isEmpty(userInfo.getPaymentPassword())) {
+            return Result.success().data("isPaymentPassword",false);
+        }
+        return Result.success().data("isPaymentPassword",true);
+    }
+
+
+    @ApiOperation(value = "购买模块：传入买方userId、商品帖goodsWantId、购买商品数needCount，支付密码paymentPassword更新双方钱包余额以及商品信息,以及我的行为表")
     @PutMapping("buy")
     public Result buy (@RequestParam String conditionStr){
         //解析Json串
@@ -90,6 +103,16 @@ public class UserController {
         Long userId=conditionJson.getLong("userId");
         Long goodsWantId=conditionJson.getLong("goodsWantId");
         int needCount=conditionJson.getIntValue("needCount");
+        String paymentPassword =conditionJson.getString("paymentPassword");
+
+        //判断用户输入支付密码是否正确
+        User userInfo = userService.getUserInfoById(userId);
+        if (userInfo==null){
+            return Result.failure().message("查询失败");
+        }
+        if (userInfo.getPaymentPassword()!=paymentPassword) {
+            return Result.failure().message("密码错误");
+        }
 
         //根据goodsWantId得到商品部分信息
         GoodsWant goodsWantInfo = goodsWantService.getById(goodsWantId);

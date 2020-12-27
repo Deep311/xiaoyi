@@ -96,20 +96,23 @@ public class GoodsWantController {
     @ApiOperation(value = "发布商品/求购:输入goodsWant字段信息，插入一条商品/求购信息;同时在action表中插入一条消息")
     @PostMapping("releaseGoodsWant")
     public Result saveUserInfo(@RequestBody GoodsWant goodsWant){
-        //写入图片
-        String base64ImgStr=goodsWant.getGoodsWantImage();
-        String imgPartName="/goodsWantImg/xxx";
-        String imgName=ImgHandlerUtil.imgHandlerWrite(base64ImgStr,imgPartName);
-        goodsWant.setGoodsWantImage(imgName);
-        log.info(imgName);
-        boolean save = goodsWantService.save(goodsWant);
-
-        goodsWantService.updateGoodsWantImage(goodsWant.getGoodsWantId(),imgName);
+        Boolean save;
+        if (goodsWant.getGoodsWantImage()==null) {
+             save = goodsWantService.save(goodsWant);
+        }else {
+            //写入图片
+            String base64ImgStr=goodsWant.getGoodsWantImage();
+            String imgPartName="/goodsWantImg/xxx";
+            String imgName=ImgHandlerUtil.imgHandlerWrite(base64ImgStr,imgPartName);
+            goodsWant.setGoodsWantImage(imgName);
+             save = goodsWantService.save(goodsWant);
+            goodsWantService.updateGoodsWantImage(goodsWant.getGoodsWantId(),imgName);
+        }
         if (!save) {
             return Result.failure().message("发布失败");
         }
         //在action表中插入一条消息
-        if (actionService.saveAction(goodsWant.getUserId(),goodsWant.getGoodsWantId(),"g")!=1) {
+        if (actionService.saveAction(goodsWant.getUserId(),goodsWant.getGoodsWantId(),goodsWant.getGoodsWant())!=1) {
             return Result.failure().message("更新action表失败");
         }
         return Result.success().message("发布成功");

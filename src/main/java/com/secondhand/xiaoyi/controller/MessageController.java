@@ -4,6 +4,7 @@ import com.secondhand.xiaoyi.entity.Message;
 import com.secondhand.xiaoyi.service.MessageService;
 import com.secondhand.xiaoyi.utils.resultabout.Result;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
