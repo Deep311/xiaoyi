@@ -2,6 +2,8 @@ package com.secondhand.xiaoyi.entity;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
+
+import java.math.BigDecimal;
 import java.util.Date;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -40,6 +42,12 @@ public class Action implements Serializable {
 
     @ApiModelProperty(value = "行为类别：g发布商品 w发布求购 b已购买")
     private String actionSort;
+
+    @ApiModelProperty(value = "b:已购买的数量")
+    private Integer buyCount;
+
+    @ApiModelProperty(value = "b:购买时的商品价格")
+    private BigDecimal buyPrice;
 
     @ApiModelProperty(value = "创建时间")
     @TableField(fill = FieldFill.INSERT)

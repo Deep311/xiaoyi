@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,7 +16,6 @@ import java.util.List;
  * <p>
  *  服务实现类
  * </p>
- *
  * @author Gaosl
  * @since 2020-12-05
  */
@@ -24,6 +24,7 @@ public class ActionServiceImpl extends ServiceImpl<ActionMapper, Action> impleme
 
     @Resource
     private ActionMapper actionMapper;
+
     /**
      * @param userId
      * @param goodsWantId
@@ -39,6 +40,17 @@ public class ActionServiceImpl extends ServiceImpl<ActionMapper, Action> impleme
         action.setUserId(userId);
         action.setGoodsWantId(goodsWantId);
         action.setActionSort(actionSort);
+        return actionMapper.insert(action);
+    }
+
+    @Override
+    public Integer saveBuyAction(Long userId, Long goodsWantId, String actionSort, Integer buyCount, BigDecimal buyPrice) {
+        Action action = new Action();
+        action.setUserId(userId);
+        action.setGoodsWantId(goodsWantId);
+        action.setActionSort(actionSort);
+        action.setBuyCount(buyCount);
+        action.setBuyPrice(buyPrice);
         return actionMapper.insert(action);
     }
 

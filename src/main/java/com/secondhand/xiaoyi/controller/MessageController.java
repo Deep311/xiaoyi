@@ -38,7 +38,8 @@ public class MessageController {
         if (!save) {
             return Result.failure().message("未成功评论");
         }
-        return Result.success().message("评论成功");
+        System.out.println(message.getGmtCreate());
+        return Result.success().message("评论成功").data("GmtCreate", message.getGmtCreate());
     }
 
     @ApiOperation("移除留言：输入messageId")

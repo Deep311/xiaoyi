@@ -4,6 +4,7 @@ package com.secondhand.xiaoyi.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.secondhand.xiaoyi.entity.Action;
 import com.secondhand.xiaoyi.entity.GoodsWant;
+import com.secondhand.xiaoyi.entity.VO.BuyActionVO;
 import com.secondhand.xiaoyi.service.ActionService;
 import com.secondhand.xiaoyi.service.GoodsWantService;
 import com.secondhand.xiaoyi.utils.ImgHandlerUtil;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,14 +39,30 @@ public class ActionController {
     @GetMapping("showActionInfo")
     public Result getActionInfo (@RequestParam("userId") Long userId,@RequestParam("actionSort")String actionSort){
         List<Action> actions = actionService.getByUserIdAndActionSort(userId, actionSort);
-        ArrayList<GoodsWant> goodsWantList = new ArrayList<>();
+        ArrayList<BuyActionVO> buyActionVOs = new ArrayList<>();
         for (Action action : actions) {
             GoodsWant goodsWant = goodsWantService.getById(action.getGoodsWantId());
             goodsWant.setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodsWant.getGoodsWantImage()));
-            goodsWantList.add(goodsWant);
+            BuyActionVO buyActionVO = new BuyActionVO(action, goodsWant);
+            buyActionVOs.add(buyActionVO);
         }
-        return Result.success().data("items",goodsWantList);
+        Collections.sort(buyActionVOs);
+        return Result.success().data("items",buyActionVOs);
     }
+
+
+    @ApiOperation("删除我的行为：")
+    @DeleteMapping("deleteAction/{actionId}")
+    public Result deleteAction (@PathVariable Long actionId ){
+        boolean b = actionService.removeById(actionId);
+        if (!b) {
+            return Result.failure().message("删除失败");
+        }
+        return Result.success().message("删除成功");
+    }
+
+
+
 
 }
 

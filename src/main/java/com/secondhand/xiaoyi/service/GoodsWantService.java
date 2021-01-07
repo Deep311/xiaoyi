@@ -52,13 +52,18 @@ public interface GoodsWantService extends IService<GoodsWant> {
       **/
      boolean logicDelete(Long goodsWantId);
 
+
+     boolean updateSalesAndCountById(Long goodsWantId,Integer needCount);
+
      /**
       * @author Gaosl
-      * @description //根据goodsWantId更新action字段
-      * @date 19:47 2020/12/11
+      * @description //得到未被逻辑删除的商品
+      * @date 15:49 2020/12/29
       * @param goodsWantId
-      * @return boolean
+      * @return com.secondhand.xiaoyi.entity.GoodsWant
       **/
-     boolean updateGoodsSalesById(Long goodsWantId,Integer needCount);
+     GoodsWant getLiveGoodsWantById(Long goodsWantId);
+
+
 
 }

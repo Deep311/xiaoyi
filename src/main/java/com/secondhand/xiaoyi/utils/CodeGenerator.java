@@ -56,7 +56,7 @@
 //        // 5、策略配置
 //        StrategyConfig strategy = new StrategyConfig();
 //        //"goods_want","action","admin","favorite","message","shoppingcart","sort","user"
-//        strategy.setInclude("user");
+//        strategy.setInclude("action");
 //        //数据库表映射到实体的命名策略
 //        strategy.setNaming(NamingStrategy.underline_to_camel);
 //        //生成实体时去掉表前缀

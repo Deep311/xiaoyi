@@ -102,7 +102,7 @@ public class UserController {
 
         Long userId=buyBO.getUserId();
         Long goodsWantId=buyBO.getGoodsWantId();
-        int needCount=buyBO.getNeedCount();
+        Integer needCount=buyBO.getNeedCount();
         String paymentPassword =buyBO.getPaymentPassword();
         System.out.println(paymentPassword);
 
@@ -123,32 +123,31 @@ public class UserController {
 
         //得到买方总购买金额
         if(needCount> goodsWantInfo.getGoodsWantCount()){
-            return Result.failure().message("购买量超出余量");
+            return Result.failure().message("购买量超出余量，支付失败！");
         }
         BigDecimal totalAmount=goodsWantInfo.getGoodsWantPrice()
                 .multiply(new BigDecimal(needCount));
 
         //得到买方用户钱包余额数
         BigDecimal walletBalance = userService.getWalletBalance(userId);
-        if (totalAmount.compareTo(walletBalance)==1) {
-            return Result.failure().message("余额不足");
+        if (totalAmount.compareTo(walletBalance) > 0) {
+            return Result.failure().message("余额不足，支付失败！");
         }
 
         //更新买方用户、卖方用户钱包余额
        userService.updateBuyerAndSellerWalletBalance(userId,goodsWantInfo.getUserId(),totalAmount);
 
         //更新action表
-        if (actionService.saveAction(userId, goodsWantId, "b")!=1) {
+        if (actionService.saveBuyAction(userId, goodsWantId, "b",needCount,goodsWantInfo.getGoodsWantPrice())!=1) {
             return Result.failure().message("更新action表失败");
         }
 
-        //购买成功更新商品销量字段
-        if (!goodsWantService.updateGoodsSalesById(goodsWantId,needCount)) {
-            return Result.failure().message("更新销量字段失败");
+        //购买成功更新商品销量、商品数量字段
+        if (!goodsWantService.updateSalesAndCountById(goodsWantId,needCount)) {
+            return Result.failure().message("更新销量和库存呢字段失败");
         }
-
         //如果购入量等于商品存量，则逻辑删除商品
-        if(needCount==goodsWantInfo.getGoodsWantCount()){
+        if(needCount.equals(goodsWantInfo.getGoodsWantCount())){
             if (!goodsWantService.logicDelete(goodsWantId)) {
                 return Result.failure().message("删除商品失败");
             }

@@ -58,6 +58,16 @@ public interface UserService extends IService<User> {
     void updateBuyerAndSellerWalletBalance(Long buyerId,Long sellerId,BigDecimal totalAmount);
 
 
+    /**
+     * @author Gaosl
+     * @description //更新用户钱包余额
+     * @date 22:27 2020/12/27
+     * @param userId, walletBalance
+     * @return void
+     **/
+    boolean updateWalletBalanceByUserId(Long userId,BigDecimal walletBalance);
+
+
 
 
 

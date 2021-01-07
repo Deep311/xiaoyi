@@ -110,17 +110,32 @@ public class GoodsWantServiceImpl extends ServiceImpl<GoodsWantMapper, GoodsWant
      * @param goodsWantId
      * @return boolean
      * @author Gaosl
-     * @description //根据goodsWantId更新goodsSales字段
+     * @description //根据goodsWantId更新goodsSales字段和goodsWantCount
      * @date 19:47 2020/12/11
      **/
     @Override
-    public boolean updateGoodsSalesById(Long goodsWantId,Integer needCount) {
+    public boolean updateSalesAndCountById(Long goodsWantId,Integer needCount) {
         UpdateWrapper<GoodsWant> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.setSql("goods_sales=goods_sales+"+needCount).eq("goods_want_id",goodsWantId);
+        updateWrapper.setSql("goods_sales=goods_sales+"+needCount+",goods_want_count=goods_want_count-"+needCount).eq("goods_want_id",goodsWantId);
         if (goodsWantMapper.update(new GoodsWant(), updateWrapper)!=1) {
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param goodsWantId
+     * @return com.secondhand.xiaoyi.entity.GoodsWant
+     * @author Gaosl
+     * @description //得到未被逻辑删除的商品
+     * @date 15:49 2020/12/29
+     **/
+    @Override
+    public GoodsWant getLiveGoodsWantById(Long goodsWantId) {
+        QueryWrapper<GoodsWant> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("goods_want_id",goodsWantId).eq("is_deleted",0);
+        GoodsWant goodsWant = goodsWantMapper.selectOne(queryWrapper);
+        return goodsWant;
     }
 
 

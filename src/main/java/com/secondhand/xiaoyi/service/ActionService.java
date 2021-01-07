@@ -3,6 +3,7 @@ package com.secondhand.xiaoyi.service;
 import com.secondhand.xiaoyi.entity.Action;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -19,10 +20,12 @@ public interface ActionService extends IService<Action> {
       * @author Gaosl
       * @description //向action表插入一条行为信息
       * @date 23:41 2020/12/9
-      * @param userId, goodsWantId, actionSort,行为类别：g发布商品 w发布求购 b已购买
+      * @param userId, goodsWantId, actionSort,行为类别：g发布商品 w发布求购
       * @return java.lang.Integer
       **/
      Integer saveAction(Long userId,Long goodsWantId,String actionSort);
+
+      Integer saveBuyAction(Long userId, Long goodsWantId, String actionSort, Integer buyCount, BigDecimal buyPrice);
 
      /**
       * @author Gaosl
@@ -32,5 +35,7 @@ public interface ActionService extends IService<Action> {
       * @return com.secondhand.xiaoyi.entity.Action
       **/
      List<Action> getByUserIdAndActionSort(Long userId, String actionSort );
+
+
 
 }

@@ -59,8 +59,10 @@ public class GoodsWantController {
         ArrayList<GoodsWantAndFavoriteVO> goodsWantAndFavoriteVOs = new ArrayList<>();
         for (GoodsWant goodswant : goodsWants) {
             goodswant.setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodswant.getGoodsWantImage()));
-            GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(
-                    favoriteService.getFavoriteId(userId,goodswant.getGoodsWantId()), goodswant);
+            GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(null, goodswant);
+            if (userId!=null) {
+                goodsWantAndFavoriteVO.setFavoriteId(favoriteService.getFavoriteId(userId,goodswant.getGoodsWantId()));
+            }
             goodsWantAndFavoriteVOs.add(goodsWantAndFavoriteVO);
         }
         return Result.success().data("items",goodsWantAndFavoriteVOs);
@@ -74,11 +76,14 @@ public class GoodsWantController {
             return Result.failure().message("查询失败");
         }
         goodsWantInfo.setGoodsWantImage(ImgHandlerUtil.imgHandlerRead(goodsWantInfo.getGoodsWantImage()));
-        GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(
-                favoriteService.getFavoriteId(userId,goodsWantInfo.getGoodsWantId()), goodsWantInfo);
+        GoodsWantAndFavoriteVO goodsWantAndFavoriteVO = new GoodsWantAndFavoriteVO(null, goodsWantInfo);
+        if (userId!=null) {
+            goodsWantAndFavoriteVO.setFavoriteId(favoriteService.getFavoriteId(userId,goodsWantInfo.getGoodsWantId()));
+        }
         List<Message> messageList = messageService.getMessages(goodsWantId);
         ArrayList<MessageVO> messageVOs = new ArrayList<>();
         for (Message message : messageList) {
+            System.out.println(message.toString());
             String username = userService.getUserInfoById(message.getUserId()).getUsername();
             MessageVO messageVO = new MessageVO(username, message);
             messageVOs.add(messageVO);

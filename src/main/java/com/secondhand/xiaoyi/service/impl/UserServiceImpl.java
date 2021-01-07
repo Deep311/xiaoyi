@@ -26,7 +26,6 @@ import java.util.Map;
  * @author Gaosl
  * @since 2020-12-05
  */
-@Transactional
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
@@ -133,6 +132,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         sellerUpdateWrapper.setSql("wallet_balance=wallet_balance+"+totalAmount).eq("user_id",sellerId);
          userMapper.update(new User(), sellerUpdateWrapper) ;
 
+    }
+
+    /**
+     * @param userId
+     * @param walletBalance
+     * @return void
+     * @author Gaosl
+     * @description //更新用户钱包余额
+     * @date 22:27 2020/12/27
+     **/
+    @Override
+    public boolean updateWalletBalanceByUserId(Long userId, BigDecimal walletBalance) {
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.setSql("wallet_balance=wallet_balance+"+walletBalance).eq("user_id",userId);
+        if (userMapper.update(new User(), updateWrapper)!=1) {
+            return false;
+        }
+        return true;
     }
 
 

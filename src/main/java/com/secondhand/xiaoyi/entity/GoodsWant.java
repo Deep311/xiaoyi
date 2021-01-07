@@ -21,7 +21,6 @@ import lombok.experimental.Accessors;
  * <p>
  * 
  * </p>
- *
  * @author Gaosl
  * @since 2020-12-13
  */
@@ -83,8 +82,6 @@ public class GoodsWant implements Serializable ,Comparable<GoodsWant>{
     @ApiModelProperty(value = "修改时间")
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gmtModified;
-
-
 
     @Override
     public int compareTo(GoodsWant o) {
